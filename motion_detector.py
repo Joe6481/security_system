@@ -1,8 +1,9 @@
 import RPi.GPIO as GPIO
 import time
 from picamera import PiCamera
+import os
 
-PICTURE_FILENAME = "/home/joesharpe/dev/security_system/picture_log.jpg"
+LOG_FILE = "/home/joesharpe/dev/security_system/picture_log.txt"
 PIR_PIN = 17
 YELLOW_LED_PIN = 27
 RED_LED_PIN = 22
@@ -28,10 +29,19 @@ def set_up_camera():
   print("Camera ready\n")
 
 def take_photo():
+  picture_filename = f"/home/joesharpe/dev/security_system/{int(time.time())}.jpg"
+
   GPIO.output(RED_LED_PIN, GPIO.HIGH)
   print("Photo is being taken...")
-  camera.capture(PICTURE_FILENAME)
+  camera.capture(picture_filename)
   GPIO.output(RED_LED_PIN, GPIO.LOW)
+
+def log_photo():
+  picture = "picture\n"
+
+  with open(LOG_FILE, "a") as f:
+    f.write(picture)
+  print("Picture logged")
 
 set_up_GPIOs()
 set_up_camera()
@@ -41,6 +51,9 @@ time_last_photo_taken = 0
 pir_previous_state = GPIO.input(PIR_PIN)
 
 try:
+  if os.path.exists(LOG_FILE):
+    os.remove(LOG_FILE)
+
   while True:
     time.sleep(0.01)
 
@@ -52,6 +65,7 @@ try:
       elif time.time() > movement_start + MOVEMENT_DURATION_THRESHOLD:
         if time.time() > time_last_photo_taken + MIN_DURATION_BETWEEN_PHOTOS:
           take_photo()
+          log_photo()
           time_last_photo_taken = time.time()
     else:
       GPIO.output(YELLOW_LED_PIN, GPIO.LOW)
