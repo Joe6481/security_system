@@ -8,19 +8,26 @@ RED_LED_PIN = 22
 MOVEMENT_DURATION_THRESHOLD = 3.0
 MIN_DURATION_BETWEEN_PHOTOS = 60.0
 
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(PIR_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-GPIO.setup(YELLOW_LED_PIN, GPIO.OUT)
-GPIO.setup(RED_LED_PIN, GPIO.OUT)
+def set_up_GPIOs():
+  GPIO.setmode(GPIO.BCM)
+  GPIO.setup(PIR_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+  GPIO.setup(YELLOW_LED_PIN, GPIO.OUT)
+  GPIO.setup(RED_LED_PIN, GPIO.OUT)
 
-GPIO.output(YELLOW_LED_PIN, GPIO.LOW)
-GPIO.output(RED_LED_PIN, GPIO.LOW)
+  GPIO.output(YELLOW_LED_PIN, GPIO.LOW)
+  GPIO.output(RED_LED_PIN, GPIO.LOW)
 
-camera = PiCamera()
-camera.resolution = (1280, 720)
-camera.rotation = 180
-time.sleep(2) # adjust to environment
-print("Camera ready...")
+def set_up_camera():
+  print("Setting up camera...")
+  global camera 
+  camera = PiCamera()
+  camera.resolution = (1280, 720)
+  camera.rotation = 180
+  time.sleep(2) # adjust to environment
+  print("Camera ready\n")
+
+set_up_GPIOs()
+set_up_camera()
 
 movement_start = time.time()
 time_last_photo_taken = 0
